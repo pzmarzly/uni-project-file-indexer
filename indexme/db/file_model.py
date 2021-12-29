@@ -9,7 +9,7 @@ class File(Base):
     __tablename__ = "files"
 
     path: Any = Column(String, primary_key=True)
-    name: Any = Column(String, nullable=False)
+    name: Any = Column(String, nullable=False, index=True)
     is_dir: Any = Column(Boolean, nullable=False)
     size: Any = Column(Integer, nullable=False)
     first_seen_at: Any = Column(DateTime, nullable=False)
