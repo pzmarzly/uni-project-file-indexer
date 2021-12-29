@@ -1,0 +1,4 @@
+/html
+.mypy_cache
+.coverage
+__pycache__
