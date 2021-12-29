@@ -36,6 +36,9 @@ class FileSortDirection:
         if dir in ["name"]:
             self.col = File.name
             return
+        if dir in ["size", "bytes"]:
+            self.col = File.size
+            return
         raise Exception(f"Unknown sort direction {dir}")
 
     def get(self) -> Column:
