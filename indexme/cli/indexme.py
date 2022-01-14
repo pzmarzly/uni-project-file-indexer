@@ -1,7 +1,7 @@
 from typing import Iterator, List, Optional
 import typer
 import os
-from inotifyrecursive import INotify, flags
+from inotifyrecursive import INotify, flags  # type: ignore
 
 from indexme.db.connection import connect
 from indexme.db.file_ops import DirectoriesOnly, add_dir, add_file, get_all_files
