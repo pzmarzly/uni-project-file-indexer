@@ -1,6 +1,7 @@
 from datetime import datetime
 from enum import IntEnum
 import os
+import sys
 from typing import Iterator, Optional, cast
 from sqlalchemy.orm.session import Session
 from sqlalchemy.orm.query import Query
@@ -42,34 +43,68 @@ class FileSortDirection:
         return cast(Query, query.order_by(self.col))
 
 
-class DirectoriesOnly(IntEnum):
-    YES = 1
-    NO = 2
-    BOTH = 3
+class GetAllFiles:
+    def __init__(self, session: Session, root: str):
+        self.root = os.path.abspath(root)
+        self.query = session.query(File).where(File.path.startswith(self.root))
 
-    def apply(self, query: Query) -> Query:
-        if self.value == self.YES:
-            return query.where(File.is_dir == True)
-        if self.value == self.NO:
-            return query.where(File.is_dir == False)
-        return query
+    def with_name(self, name: Optional[str]) -> "GetAllFiles":
+        if name is not None:
+            self.query = self.query.where(File.name.contains(name))
+        return self
 
+    def with_extension(self, extension: Optional[str]) -> "GetAllFiles":
+        if extension is not None:
+            self.query = self.query.where(File.name.endswith(f".{extension}"))
+        return self
 
-def get_all_files(
-    s: Session,
-    root: str,
-    name: Optional[str],
-    extension: Optional[str],
-    directories: DirectoriesOnly,
-    sort_by: Optional[FileSortDirection],
-) -> Iterator[File]:
-    real_root = os.path.abspath(root)
-    query = s.query(File).where(File.path.startswith(real_root))
-    if name is not None:
-        query = query.where(File.name.contains(name))
-    if extension is not None:
-        query = query.where(File.name.endswith(f".{extension}"))
-    query = directories.apply(query)
-    if sort_by is not None:
-        query = sort_by.apply(query)
-    yield from query.all()
+    def with_executable_bit(self, executable: Optional[bool]) -> "GetAllFiles":
+        if executable is not None:
+            self.query = self.query.where(File.is_executable == executable)
+        return self
+
+    def with_suid_bit(self, suid: Optional[bool]) -> "GetAllFiles":
+        if suid is not None:
+            self.query = self.query.where(File.is_suid == suid)
+        return self
+
+    def with_directories_bit(self, directory: Optional[bool]) -> "GetAllFiles":
+        if directory is not None:
+            self.query = self.query.where(File.is_dir == directory)
+        return self
+
+    def with_created_after(self, timestamp: Optional[int]) -> "GetAllFiles":
+        if timestamp is not None:
+            self.query = self.query.where(
+                File.created_at >= datetime.fromtimestamp(timestamp)
+            )
+        return self
+
+    def with_created_before(self, timestamp: Optional[int]) -> "GetAllFiles":
+        if timestamp is not None:
+            self.query = self.query.where(
+                File.created_at <= datetime.fromtimestamp(timestamp)
+            )
+        return self
+
+    def with_modified_after(self, timestamp: Optional[int]) -> "GetAllFiles":
+        if timestamp is not None:
+            self.query = self.query.where(
+                File.modified_at >= datetime.fromtimestamp(timestamp)
+            )
+        return self
+
+    def with_modified_before(self, timestamp: Optional[int]) -> "GetAllFiles":
+        if timestamp is not None:
+            self.query = self.query.where(
+                File.modified_at <= datetime.fromtimestamp(timestamp)
+            )
+        return self
+
+    def with_sorting(self, sort_by: Optional[FileSortDirection]) -> "GetAllFiles":
+        if sort_by is not None:
+            self.query = sort_by.apply(self.query)
+        return self
+
+    def __iter__(self) -> Iterator[File]:
+        yield from self.query.all()

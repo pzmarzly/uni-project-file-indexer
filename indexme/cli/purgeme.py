@@ -2,7 +2,7 @@ import os
 import typer
 
 from indexme.db.connection import connect
-from indexme.db.file_ops import DirectoriesOnly, get_all_files
+from indexme.db.file_ops import GetAllFiles
 
 app = typer.Typer()
 
@@ -14,7 +14,7 @@ def purge(
 ) -> None:
     Session = connect()
     with Session() as s:
-        for file in get_all_files(s, root, None, None, DirectoriesOnly.BOTH, None):
+        for file in GetAllFiles(s, root):
             if all or not os.path.exists(file.path):
                 s.delete(file)
                 print(file)

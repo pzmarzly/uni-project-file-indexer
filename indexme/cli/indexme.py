@@ -4,7 +4,7 @@ import os
 from inotifyrecursive import INotify, flags  # type: ignore
 
 from indexme.db.connection import connect
-from indexme.db.file_ops import DirectoriesOnly, add_file, get_all_files
+from indexme.db.file_ops import add_file, GetAllFiles
 from indexme.db.paths import get_ignore_path
 
 app = typer.Typer()
@@ -79,9 +79,7 @@ def index(
                             flags.MOVE_SELF,
                         ]:
                             with Session() as s:
-                                for file in get_all_files(
-                                    s, path, None, None, DirectoriesOnly.BOTH, None
-                                ):
+                                for file in GetAllFiles(s, path):
                                     print(file)
                                     s.delete(file)
                                 s.commit()
