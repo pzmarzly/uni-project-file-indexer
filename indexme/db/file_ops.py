@@ -7,12 +7,21 @@ from sqlalchemy.sql.schema import Column
 from indexme.db.file_model import File
 
 
+def _get_size(path: str, is_dir: bool) -> int:
+    if is_dir:
+        return 0
+    try:
+        return os.stat(path).st_size
+    except:
+        return 0
+
+
 def _add_entry(s: Session, path: str, is_dir: bool) -> File:
     entry = s.query(File).filter(File.path == path).one_or_none() or File()
     entry.path = path
     entry.name = os.path.split(path)[1]
     entry.is_dir = is_dir
-    entry.size = 0 if is_dir else os.stat(path).st_size
+    entry.size = _get_size(path, is_dir)
     entry.first_seen_at = entry.first_seen_at or datetime.now()
     s.add(entry)
     return entry
@@ -51,7 +60,7 @@ def get_all_files(
     name: Optional[str],
     extension: Optional[str],
     directories: bool,
-    sort_by: FileSortDirection,
+    sort_by: Optional[FileSortDirection],
 ) -> Iterator[File]:
     real_root = os.path.realpath(root)
     query = s.query(File).where(File.path.startswith(real_root))
@@ -60,13 +69,6 @@ def get_all_files(
     if extension is not None:
         query = query.where(File.name.endswith(f".{extension}"))
     query = query.where(File.is_dir == directories)
-    query = query.order_by(sort_by.get())
+    if sort_by is not None:
+        query = query.order_by(sort_by.get())
     yield from query.all()
-
-
-def purge_all_files(s: Session, root: str) -> Iterator[File]:
-    real_root = os.path.realpath(root)
-    query = s.query(File).where(File.path.startswith(real_root))
-    for file in query.all():
-        yield file
-        s.delete(file)

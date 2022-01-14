@@ -9,6 +9,7 @@ import sys
 
 from indexme.db.connection import connect
 from indexme.db.file_model import File
+from indexme.db.file_ops import add_file
 
 captured_stdout: Optional[io.StringIO]
 
@@ -48,15 +49,28 @@ class CliIndexMeTests(TestCase):
 
 
 class CliPurgeMeTests(TestCase):
+    def setUp(self) -> None:
+        with capture_stdout():
+            purge(root="/", all=True)
+        Session = connect()
+        with Session() as s:
+            add_file(s, "tests/empty_dir/ignore/example_file.txt")
+            add_file(s, "tests/empty_dir/ignore/not_a_file.txt")
+
     def test_purges_dir(self) -> None:
         with capture_stdout():
-            index(directory="tests/empty_dir", exclude=[])
-        with capture_stdout():
-            size1 = get_db_size()
-            purge(root="tests/empty_dir")
-            size2 = get_db_size()
+            self.assertEqual(get_db_size(), 2)
+            purge(root="tests/empty_dir", all=True)
+            self.assertEqual(get_db_size(), 0)
             self.assertIn("example_file.txt", get_captured_stdout())
-            self.assertGreater(size1, size2)
+            self.assertIn("not_a_file.txt", get_captured_stdout())
+
+    def test_removes_deleted_files(self) -> None:
+        with capture_stdout():
+            self.assertEqual(get_db_size(), 2)
+            purge(root="tests/empty_dir", all=False)
+            self.assertEqual(get_db_size(), 1)
+            self.assertIn("example_file.txt", get_captured_stdout())
 
 
 class CliSearchMeTests(TestCase):
