@@ -4,7 +4,7 @@ import os
 from inotifyrecursive import INotify, flags  # type: ignore
 
 from indexme.db.connection import connect
-from indexme.db.file_ops import DirectoriesOnly, add_dir, add_file, get_all_files
+from indexme.db.file_ops import DirectoriesOnly, add_file, get_all_files
 from indexme.db.paths import get_ignore_path
 
 app = typer.Typer()
@@ -53,7 +53,7 @@ def index(
                     entry = add_file(s, os.path.join(dir_path, file))
                     print(entry)
                 for subdir in subdirs:
-                    entry = add_dir(s, os.path.join(dir_path, subdir))
+                    entry = add_file(s, os.path.join(dir_path, subdir))
                     print(entry)
 
             s.commit()
@@ -69,10 +69,7 @@ def index(
                     for flag in flags.from_mask(event.mask):
                         if flag in [flags.CREATE, flags.MOVED_TO]:
                             with Session() as s:
-                                if os.path.isdir(path):
-                                    print(add_dir(s, path))
-                                else:
-                                    print(add_file(s, path))
+                                print(add_file(s, path))
                                 s.commit()
 
                         if flag in [

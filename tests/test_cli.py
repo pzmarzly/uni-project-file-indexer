@@ -3,6 +3,7 @@ from unittest import TestCase
 from indexme.cli.indexme import app as indexme
 from indexme.cli.purgeme import app as purgeme
 from indexme.cli.searchme import app as searchme
+from typer import Typer
 from typer.testing import CliRunner
 from click.testing import Result
 
@@ -16,16 +17,23 @@ def get_db_size() -> int:
         return s.query(File).count()
 
 
+def _invoke(app: Typer, args: List[str]) -> Result:
+    res = CliRunner().invoke(app, args)
+    if res.exception is not None:
+        raise res.exception
+    return res
+
+
 def index(args: List[str]) -> Result:
-    return CliRunner().invoke(indexme, args)
+    return _invoke(indexme, args)
 
 
 def purge(args: List[str]) -> Result:
-    return CliRunner().invoke(purgeme, args)
+    return _invoke(purgeme, args)
 
 
 def search(args: List[str]) -> Result:
-    return CliRunner().invoke(searchme, args)
+    return _invoke(searchme, args)
 
 
 class CliIndexMeTests(TestCase):

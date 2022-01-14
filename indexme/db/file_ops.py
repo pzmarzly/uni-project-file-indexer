@@ -1,4 +1,3 @@
-from dataclasses import dataclass
 from datetime import datetime
 from enum import IntEnum
 import os
@@ -7,42 +6,29 @@ from sqlalchemy.orm.session import Session
 from sqlalchemy.orm.query import Query
 
 from indexme.db.file_model import File
-
-
-def _get_size(path: str, is_dir: bool) -> int:
-    if is_dir:
-        return 0
-    try:
-        return os.stat(path).st_size
-    except:
-        return 0
-
-
-def _add_entry(s: Session, path: str, is_dir: bool) -> File:
-    entry = s.query(File).filter(File.path == path).one_or_none() or File()
-    entry.path = path
-    entry.name = os.path.split(path)[1]
-    entry.is_dir = is_dir
-    entry.size = _get_size(path, is_dir)
-    entry.first_seen_at = entry.first_seen_at or datetime.now()
-    s.add(entry)
-    return entry
+from indexme.db.stat import Stat
 
 
 def add_file(s: Session, path: str) -> File:
-    file_path = os.path.abspath(path)
-    return _add_entry(s, file_path, False)
-
-
-def add_dir(s: Session, path: str) -> File:
-    dir_path = os.path.abspath(path)
-    return _add_entry(s, dir_path, True)
+    path = os.path.abspath(path)
+    stat = Stat.get(path)
+    entry = s.query(File).filter(File.path == path).one_or_none() or File()
+    entry.path = path
+    entry.name = os.path.split(path)[1]
+    entry.is_dir = stat.is_dir()
+    entry.is_executable = stat.is_executable()
+    entry.is_suid = stat.is_suid()
+    entry.size = stat.size()
+    entry.created_at = stat.ctime()
+    entry.modified_at = stat.mtime()
+    s.add(entry)
+    return entry
 
 
 class FileSortDirection:
     def __init__(self, dir: str):
         if dir in ["date", "newest"]:
-            self.col = File.first_seen_at
+            self.col = File.modified_at
             return
         if dir in ["name"]:
             self.col = File.name

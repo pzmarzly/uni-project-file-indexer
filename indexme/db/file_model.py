@@ -11,13 +11,16 @@ class File(Base):
     path: Any = Column(String, primary_key=True)
     name: Any = Column(String, nullable=False, index=True)
     is_dir: Any = Column(Boolean, nullable=False)
+    is_executable: Any = Column(Boolean, nullable=False)
+    is_suid: Any = Column(Boolean, nullable=False)
     size: Any = Column(Integer, nullable=False)
-    first_seen_at: Any = Column(DateTime, nullable=False)
+    created_at: Any = Column(DateTime, nullable=False)
+    modified_at: Any = Column(DateTime, nullable=False)
 
     def __str__(self) -> str:
         path = os.path.relpath(cast(str, self.path))
         size = "dir" if self.is_dir else format_bytes(cast(int, self.size))
-        return f"{path}: {self.name} ({size}, {self.first_seen_at})"
+        return f"{path}: {self.name} ({size}, {self.created_at} - {self.modified_at})"
 
 
 def format_bytes(size: float) -> str:
