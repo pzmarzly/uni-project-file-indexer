@@ -46,7 +46,8 @@ def index(
         with Session() as s:
             for dir_path, subdirs, files in os.walk(directory):
                 # https://stackoverflow.com/a/19859907
-                subdirs[:] = [d for d in subdirs if d not in exclude]
+                files[:] = [x for x in files if x not in exclude]
+                subdirs[:] = [x for x in subdirs if x not in exclude]
 
                 for file in files:
                     entry = add_file(s, os.path.join(dir_path, file))
@@ -61,8 +62,10 @@ def index(
         assert observer is not None
         while True:
             for event in observer.read():
+                if event.name in exclude:
+                    continue
+                path = os.path.join(observer.get_path(event.wd), event.name)
                 try:
-                    path = os.path.join(observer.get_path(event.wd), event.name)
                     for flag in flags.from_mask(event.mask):
                         if flag in [flags.CREATE, flags.MOVED_TO]:
                             with Session() as s:

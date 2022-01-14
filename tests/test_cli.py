@@ -29,9 +29,13 @@ def search(args: List[str]) -> Result:
 
 
 class CliIndexMeTests(TestCase):
-    def test_runs_on_ignored_dir(self) -> None:
+    def test_can_ignore_dir(self) -> None:
         res = index(["tests/example_dir", "--exclude", "inner"])
         self.assertEqual(res.stdout, "")
+
+    def test_can_ignore_file(self) -> None:
+        res = index(["tests/example_dir", "--exclude", "example_file.txt"])
+        self.assertNotIn("example_file", res.stdout)
 
     def test_indexes_a_file(self) -> None:
         res = index(["tests/example_dir", "--exclude", "one", "--exclude", "two"])
