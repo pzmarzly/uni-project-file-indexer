@@ -86,3 +86,10 @@ class CliSearchMeTests(TestCase):
     def test_counts_files_and_dirs(self) -> None:
         res = search(["", "--count-only", "tests/example_dir"])
         self.assertEqual(res.stdout, "2\n")
+
+    def test_can_list_for_xargs(self) -> None:
+        res = search(["", "--xargs", "tests/example_dir"])
+        self.assertEqual(
+            res.stdout,
+            "tests/example_dir/inner\0tests/example_dir/inner/example_file.txt\0",
+        )

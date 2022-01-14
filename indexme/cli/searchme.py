@@ -1,5 +1,6 @@
 from typing import Optional
 import typer
+import os
 
 from indexme.db.connection import connect
 from indexme.db.file_ops import DirectoriesOnly, FileSortDirection, get_all_files
@@ -23,9 +24,12 @@ def search(
     directories: Optional[bool] = typer.Option(None, help="Search for directories"),
     sort_by: str = typer.Option("date", help="Sort by name or by date"),
     count_only: bool = typer.Option(False, help="Print number of matches"),
+    xargs: bool = typer.Option(False, help="Print xargs-readable NUL-sep. list"),
 ) -> None:
     direction = FileSortDirection(sort_by)
     dir_only = directories_only(directories)
+    if count_only and xargs:
+        raise Exception("Conflicting options")
 
     counter = 0
     Session = connect()
@@ -33,7 +37,10 @@ def search(
         for file in get_all_files(s, root, name, extension, dir_only, direction):
             counter += 1
             if not count_only:
-                print(file)
+                if xargs:
+                    print(os.path.relpath(file.path), end="\0")
+                else:
+                    print(file)
 
     if count_only:
         print(counter)
