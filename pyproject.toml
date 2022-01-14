@@ -4,7 +4,7 @@ version = "1.0.0"
 description = "Index and search your files"
 authors = ["Paweł Zmarzły <pawo2500@gmail.com>"]
 license = "GPL-2.0-or-later"
-repository = "https://github.com/pzmarzly/uni-file-indexer"
+repository = "https://github.com/pzmarzly/uni-project-file-indexer"
 
 [tool.poetry.dependencies]
 python = "^3.8"
