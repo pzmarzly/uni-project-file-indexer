@@ -2,5 +2,7 @@
   "cSpell.words": ["indexme", "subdirs"],
   "python.linting.enabled": true,
   "python.linting.mypyEnabled": true,
-  "python.analysis.typeCheckingMode": "basic"
+  "python.analysis.typeCheckingMode": "basic",
+  "python.sortImports.path": "isort",
+  "python.formatting.provider": "black"
 }

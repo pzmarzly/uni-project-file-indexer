@@ -1,4 +1,5 @@
 import os
+
 import typer
 
 from indexme.db.connection import connect

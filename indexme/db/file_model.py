@@ -1,6 +1,7 @@
 import os
 from typing import Any, cast
-from sqlalchemy import Boolean, Column, Integer, String, DateTime
+
+from sqlalchemy import Boolean, Column, DateTime, Integer, String
 
 from indexme.db.connection import Base
 

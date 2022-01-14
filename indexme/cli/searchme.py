@@ -1,6 +1,7 @@
-from typing import Optional
-import typer
 import os
+from typing import Optional
+
+import typer
 
 from indexme.db.connection import connect
 from indexme.db.file_ops import FileSortDirection, GetAllFiles

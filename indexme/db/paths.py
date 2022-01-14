@@ -1,5 +1,6 @@
 from typing import Callable
-from xdg import xdg_data_home, xdg_config_home
+
+from xdg import xdg_config_home, xdg_data_home
 
 
 def _get_ignore_path() -> str:

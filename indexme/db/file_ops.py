@@ -1,10 +1,9 @@
-from datetime import datetime
-from enum import IntEnum
 import os
-import sys
+from datetime import datetime
 from typing import Iterator, Optional, cast
-from sqlalchemy.orm.session import Session
+
 from sqlalchemy.orm.query import Query
+from sqlalchemy.orm.session import Session
 
 from indexme.db.file_model import File
 from indexme.db.stat import Stat

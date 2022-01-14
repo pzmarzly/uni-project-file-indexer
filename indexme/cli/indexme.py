@@ -1,10 +1,11 @@
-from typing import Iterator, List, Optional
-import typer
 import os
+from typing import Iterator, List, Optional
+
+import typer
 from inotifyrecursive import INotify, flags  # type: ignore
 
 from indexme.db.connection import connect
-from indexme.db.file_ops import add_file, GetAllFiles
+from indexme.db.file_ops import GetAllFiles, add_file
 from indexme.db.paths import get_ignore_path
 
 app = typer.Typer()

@@ -1,7 +1,7 @@
+import os
 from abc import ABC, abstractmethod
 from datetime import datetime, timezone
-import os
-from stat import S_IFDIR, S_IXUSR, S_ISUID  # type: ignore
+from stat import S_IFDIR, S_ISUID, S_IXUSR  # type: ignore
 
 
 class Stat(ABC):
