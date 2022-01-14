@@ -10,13 +10,13 @@ app = typer.Typer()
 @app.command()
 def purge(
     root: str = typer.Argument(..., help="Root directory"),
-    all: bool = typer.Argument(False, help="Purge even if file exists"),
+    all: bool = typer.Option(False, help="Purge even if file exists"),
 ) -> None:
     Session = connect()
     with Session() as s:
         for is_dir in [False, True]:
             for file in get_all_files(s, root, None, None, is_dir, None):
-                if all or not os.path.exists(file):
+                if all or not os.path.exists(file.path):
                     s.delete(file)
                     print(file)
         s.commit()

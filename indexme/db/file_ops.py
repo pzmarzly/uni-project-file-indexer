@@ -28,12 +28,12 @@ def _add_entry(s: Session, path: str, is_dir: bool) -> File:
 
 
 def add_file(s: Session, path: str) -> File:
-    file_path = os.path.realpath(path)
+    file_path = os.path.abspath(path)
     return _add_entry(s, file_path, False)
 
 
 def add_dir(s: Session, path: str) -> File:
-    dir_path = os.path.realpath(path)
+    dir_path = os.path.abspath(path)
     return _add_entry(s, dir_path, True)
 
 
@@ -62,7 +62,7 @@ def get_all_files(
     directories: bool,
     sort_by: Optional[FileSortDirection],
 ) -> Iterator[File]:
-    real_root = os.path.realpath(root)
+    real_root = os.path.abspath(root)
     query = s.query(File).where(File.path.startswith(real_root))
     if name is not None:
         query = query.where(File.name.contains(name))
