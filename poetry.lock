@@ -93,6 +93,25 @@ perf = ["ipython"]
 testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-cov", "pytest-enabler (>=1.0.1)", "packaging", "pyfakefs", "flufl.flake8", "pytest-perf (>=0.9.2)", "pytest-black (>=0.3.7)", "pytest-mypy", "importlib-resources (>=1.3)"]
 
 [[package]]
+name = "inotify-simple"
+version = "1.3.5"
+description = "A simple wrapper around inotify. No fancy bells and whistles, just a literal wrapper with ctypes. Under 100 lines of code!"
+category = "main"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*"
+
+[[package]]
+name = "inotifyrecursive"
+version = "0.3.5"
+description = "Recursive inotify watches based on inotify_simple."
+category = "main"
+optional = false
+python-versions = ">=2.7, !=3.0.*, !=3.1.*"
+
+[package.dependencies]
+inotify-simple = ">=1.3.5"
+
+[[package]]
 name = "isort"
 version = "5.10.1"
 description = "A Python utility / library to sort Python imports."
@@ -334,7 +353,7 @@ gui = ["PyGObject"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "96b054e1cdd8389316435f83683d3d704a0e8057e0f0a370b03e8573e618e24c"
+content-hash = "83380c6724c06e493c99b2c1839642613e9852c174948415596cd4ebd8252ced"
 
 [metadata.files]
 autoflake = [
@@ -461,6 +480,13 @@ greenlet = [
 importlib-metadata = [
     {file = "importlib_metadata-4.10.0-py3-none-any.whl", hash = "sha256:b7cf7d3fef75f1e4c80a96ca660efbd51473d7e8f39b5ab9210febc7809012a4"},
     {file = "importlib_metadata-4.10.0.tar.gz", hash = "sha256:92a8b58ce734b2a4494878e0ecf7d79ccd7a128b5fc6014c401e0b61f006f0f6"},
+]
+inotify-simple = [
+    {file = "inotify_simple-1.3.5.tar.gz", hash = "sha256:8440ffe49c4ae81a8df57c1ae1eb4b6bfa7acb830099bfb3e305b383005cc128"},
+]
+inotifyrecursive = [
+    {file = "inotifyrecursive-0.3.5-py3-none-any.whl", hash = "sha256:7e5f4a2e1dc2bef0efa3b5f6b339c41fb4599055a2b54909d020e9e932cc8d2f"},
+    {file = "inotifyrecursive-0.3.5.tar.gz", hash = "sha256:a2c450b317693e4538416f90eb1d7858506dafe6b8b885037bd2dd9ae2dafa1e"},
 ]
 isort = [
     {file = "isort-5.10.1-py3-none-any.whl", hash = "sha256:6f62d78e2f89b4500b080fe3a81690850cd254227f27f75c3a0c491a1f351ba7"},

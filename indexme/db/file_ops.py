@@ -1,8 +1,10 @@
+from dataclasses import dataclass
 from datetime import datetime
+from enum import IntEnum
 import os
-from typing import Iterator, Optional
+from typing import Iterator, Optional, cast
 from sqlalchemy.orm.session import Session
-from sqlalchemy.sql.schema import Column
+from sqlalchemy.orm.query import Query
 
 from indexme.db.file_model import File
 
@@ -50,8 +52,21 @@ class FileSortDirection:
             return
         raise Exception(f"Unknown sort direction {dir}")
 
-    def get(self) -> Column:
-        return self.col
+    def apply(self, query: Query) -> Query:
+        return cast(Query, query.order_by(self.col))
+
+
+class DirectoriesOnly(IntEnum):
+    YES = 1
+    NO = 2
+    BOTH = 3
+
+    def apply(self, query: Query) -> Query:
+        if self.value == self.YES:
+            return query.where(File.is_dir == True)
+        if self.value == self.NO:
+            return query.where(File.is_dir == False)
+        return query
 
 
 def get_all_files(
@@ -59,7 +74,7 @@ def get_all_files(
     root: str,
     name: Optional[str],
     extension: Optional[str],
-    directories: bool,
+    directories: DirectoriesOnly,
     sort_by: Optional[FileSortDirection],
 ) -> Iterator[File]:
     real_root = os.path.abspath(root)
@@ -68,7 +83,7 @@ def get_all_files(
         query = query.where(File.name.contains(name))
     if extension is not None:
         query = query.where(File.name.endswith(f".{extension}"))
-    query = query.where(File.is_dir == directories)
+    query = directories.apply(query)
     if sort_by is not None:
-        query = query.order_by(sort_by.get())
+        query = sort_by.apply(query)
     yield from query.all()
