@@ -30,48 +30,48 @@ def search(args: List[str]) -> Result:
 
 class CliIndexMeTests(TestCase):
     def test_runs_on_ignored_dir(self) -> None:
-        res = index(["tests/empty_dir", "--exclude", "ignore"])
+        res = index(["tests/example_dir", "--exclude", "inner"])
         self.assertEqual(res.stdout, "")
 
     def test_indexes_a_file(self) -> None:
-        res = index(["tests/empty_dir", "--exclude", "one", "--exclude", "two"])
+        res = index(["tests/example_dir", "--exclude", "one", "--exclude", "two"])
         self.assertIn("example_file.txt", res.stdout)
 
 
 class CliPurgeMeTests(TestCase):
     def setUp(self) -> None:
         purge(["/", "--all"])
-        index(["tests/empty_dir"])
+        index(["tests/example_dir"])
 
     def test_purges_dir(self) -> None:
         self.assertEqual(get_db_size(), 2)
-        res = purge(["tests/empty_dir", "--all"])
+        res = purge(["tests/example_dir", "--all"])
         self.assertEqual(get_db_size(), 0)
         self.assertIn("example_file.txt", res.stdout)
 
     def test_removes_only_deleted_files(self) -> None:
         self.assertEqual(get_db_size(), 2)
-        res = purge(["tests/empty_dir"])
+        res = purge(["tests/example_dir"])
         self.assertEqual(get_db_size(), 2)
 
 
 class CliSearchMeTests(TestCase):
     def setUp(self) -> None:
         purge(["/", "--all"])
-        index(["tests/empty_dir"])
+        index(["tests/example_dir"])
 
     def test_finds_file(self) -> None:
-        res = search(["example", "--extension", "txt", "tests/empty_dir"])
+        res = search(["example", "--extension", "txt", "tests/example_dir"])
         self.assertIn("example_file.txt", res.stdout)
 
     def test_is_silent_on_no_matches(self) -> None:
-        res = search(["invalid", "--extension", "pdf", "tests/empty_dir"])
+        res = search(["invalid", "--extension", "pdf", "tests/example_dir"])
         self.assertEqual(res.stdout, "")
 
     def test_lists_all_files(self) -> None:
-        res = search(["", "tests/empty_dir"])
+        res = search(["", "tests/example_dir"])
         self.assertIn("example_file.txt", res.stdout)
 
     def test_counts_files(self) -> None:
-        res = search(["", "--count-only", "tests/empty_dir"])
+        res = search(["", "--count-only", "tests/example_dir"])
         self.assertEqual(res.stdout, "1\n")
