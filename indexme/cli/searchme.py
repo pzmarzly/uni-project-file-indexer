@@ -14,12 +14,17 @@ def search(
     extension: Optional[str] = typer.Option(None, help="Extension"),
     directories: bool = typer.Option(False, help="Search for directories"),
     sort_by: str = typer.Option("date", help="Sort by name or by date"),
+    count_only: bool = typer.Option(False, help="Print number of matches"),
 ) -> None:
-    if sum(x is not None for x in [name, extension]) == 0:
-        raise Exception("Please specify at least one search option!")
     direction = FileSortDirection(sort_by)
 
+    counter = 0
     Session = connect()
     with Session() as s:
         for file in get_all_files(s, root, name, extension, directories, direction):
-            print(file)
+            counter += 1
+            if not count_only:
+                print(file)
+
+    if count_only:
+        print(counter)

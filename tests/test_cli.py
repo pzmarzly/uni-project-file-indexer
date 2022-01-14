@@ -44,7 +44,7 @@ class CliIndexMeTests(TestCase):
     def test_indexes_a_file(self) -> None:
         with capture_stdout():
             index(directory="tests/empty_dir", exclude=["none"])
-            self.assertNotEqual(get_captured_stdout(), "")
+            self.assertIn("example_file.txt", get_captured_stdout())
 
 
 class CliPurgeMeTests(TestCase):
@@ -55,14 +55,16 @@ class CliPurgeMeTests(TestCase):
             size1 = get_db_size()
             purge(root="tests/empty_dir")
             size2 = get_db_size()
-            self.assertNotEqual(get_captured_stdout(), "")
+            self.assertIn("example_file.txt", get_captured_stdout())
             self.assertGreater(size1, size2)
 
 
 class CliSearchMeTests(TestCase):
-    def test_finds_file(self) -> None:
+    def setUp(self) -> None:
         with capture_stdout():
             index(directory="tests/empty_dir", exclude=[])
+
+    def test_finds_file(self) -> None:
         with capture_stdout():
             search(
                 root="tests/empty_dir",
@@ -70,6 +72,7 @@ class CliSearchMeTests(TestCase):
                 extension="txt",
                 directories=False,
                 sort_by="name",
+                count_only=False,
             )
             self.assertIn("example_file.txt", get_captured_stdout())
 
@@ -81,5 +84,30 @@ class CliSearchMeTests(TestCase):
                 extension="pdf",
                 directories=False,
                 sort_by="name",
+                count_only=False,
             )
             self.assertEqual(get_captured_stdout(), "")
+
+    def test_lists_all_files(self) -> None:
+        with capture_stdout():
+            search(
+                root="tests/empty_dir",
+                name=None,
+                extension=None,
+                directories=False,
+                sort_by="name",
+                count_only=False,
+            )
+            self.assertIn("example_file.txt", get_captured_stdout())
+
+    def test_counts_files(self) -> None:
+        with capture_stdout():
+            search(
+                root="tests/empty_dir",
+                name=None,
+                extension=None,
+                directories=False,
+                sort_by="name",
+                count_only=True,
+            )
+            self.assertEqual(get_captured_stdout(), "1\n")
