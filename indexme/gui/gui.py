@@ -1,15 +1,15 @@
-import subprocess
-from typing import Any, Callable, Dict, List, Optional
-import gi  # type: ignore
-import pathlib
-import typer
 import os
 import pathlib
+import subprocess
+from typing import Any, Callable, Dict, List, Optional
 
+import gi  # type: ignore
+import typer
 from sqlalchemy.orm.session import Session
+
 from indexme.db.connection import connect
-from indexme.db.file_ops import GetAllFiles, get_file
 from indexme.db.file_model import File, format_bytes
+from indexme.db.file_ops import GetAllFiles, get_file
 
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk  # type: ignore

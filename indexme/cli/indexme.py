@@ -1,5 +1,5 @@
 import os
-from typing import Iterator, List, Optional
+from typing import Iterator, List
 
 import typer
 from inotifyrecursive import INotify, flags  # type: ignore
