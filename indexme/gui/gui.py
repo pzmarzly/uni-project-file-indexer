@@ -9,7 +9,7 @@ from sqlalchemy.orm.session import Session
 
 from indexme.db.connection import connect
 from indexme.db.file_model import File, format_bytes
-from indexme.db.file_ops import GetAllFiles, get_file
+from indexme.db.file_ops import FileSortDirection, GetAllFiles, get_file
 
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk  # type: ignore
@@ -25,11 +25,11 @@ def load_xml(file: str) -> Gtk.Builder:
 
 
 class MainWindow:
-    def __init__(self) -> None:
+    def __init__(self, root: str) -> None:
         self.builder = load_xml("main_window.glade")
         self.Session = connect()
 
-        self.root = os.path.abspath(str(pathlib.Path.home()))
+        self.root = os.path.abspath(os.path.expanduser(root))
         self.added_rows: Dict[str, Gtk.TreeRow] = dict()
         self.actions: List[Callable[[str], Any]] = []
 
@@ -55,7 +55,12 @@ class MainWindow:
         text = self.search.get_text()
         self._clear_rows()
         with self.Session() as s:
-            for file in GetAllFiles(s, self.root).with_name(text).limit(100):
+            for file in (
+                GetAllFiles(s, self.root)
+                .with_name(text)
+                .with_sorting(FileSortDirection("path"))
+                .limit(100)
+            ):
                 self._add_row(s, file.path, file)
 
     def _clear_rows(self) -> None:
@@ -63,7 +68,7 @@ class MainWindow:
         self.added_rows.clear()
 
     def _add_row(self, session: Session, path: str, file: Optional[File]) -> None:
-        data = [path, "", "", 0, "", 0, ""]
+        data = [path, os.path.basename(path), "", 0, "", 0, ""]
         if file is not None:
             size = "dir" if file.is_dir else format_bytes(file.size)
             created_at = int(file.created_at.timestamp()), str(file.created_at)
@@ -100,12 +105,13 @@ class MainWindow:
 
 @app.command()
 def gui(
+    root: str = typer.Option("~", help="Where to start searching"),
     open: bool = typer.Option(
         True, help="Open file on selection instead of printing filename"
     ),
     exit: bool = typer.Option(False, help="Exit after selecting file"),
 ) -> None:
-    window = MainWindow()
+    window = MainWindow(root)
 
     if open:
         window.add_action(lambda path: subprocess.call(["xdg-open", path]))

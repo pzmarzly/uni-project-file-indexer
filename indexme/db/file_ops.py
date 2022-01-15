@@ -27,11 +27,14 @@ def add_file(s: Session, path: str) -> File:
 
 class FileSortDirection:
     def __init__(self, dir: str):
-        if dir in ["date", "newest"]:
-            self.col = File.modified_at
-            return
         if dir in ["name"]:
             self.col = File.name
+            return
+        if dir in ["path"]:
+            self.col = File.path
+            return
+        if dir in ["date", "newest"]:
+            self.col = File.modified_at
             return
         if dir in ["size", "bytes"]:
             self.col = File.size
