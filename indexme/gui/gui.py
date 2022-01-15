@@ -1,11 +1,15 @@
 import subprocess
-from typing import Any, Callable
+from typing import Any, Callable, Optional
 import gi
 import pathlib
 import typer
-from indexme.db.connection import connect
+import os
+import pathlib
 
-from indexme.db.file_ops import GetAllFiles
+from sqlalchemy.orm.session import Session
+from indexme.db.connection import connect
+from indexme.db.file_ops import GetAllFiles, get_file
+from indexme.db.file_model import File
 
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk  # type: ignore
@@ -24,6 +28,8 @@ class MainWindow:
     def __init__(self):
         self.builder = load_xml("main_window.glade")
         self.Session = connect()
+        self.root = os.path.abspath(str(pathlib.Path.home()))
+        self.added_rows = dict()
 
         self.window = self.builder.get_object("window")
         self.window.connect("destroy", Gtk.main_quit)
@@ -45,11 +51,30 @@ class MainWindow:
 
     def _update_search(self) -> None:
         text = self.search.get_text()
-
-        self.store.clear()
+        self._clear_rows()
         with self.Session() as s:
-            for file in GetAllFiles(s, "/").with_name(text).limit(100):
-                self.store.append(None, [file.path, file.name, str(file.size)])
+            for file in GetAllFiles(s, self.root).with_name(text).limit(100):
+                self._add_row(s, file.path, file)
+
+    def _clear_rows(self) -> None:
+        self.store.clear()
+        self.added_rows.clear()
+
+    def _add_row(self, session: Session, path: str, file: Optional[File]) -> None:
+        data = [path, "", ""]
+        if file is not None:
+            data = [file.path, file.name, str(file.size)]
+
+        parent_path = os.path.dirname(path)
+        parent = None
+        if parent_path != self.root:
+            if parent_path not in self.added_rows:
+                parent_file = get_file(session, parent_path)
+                self._add_row(session, parent_path, parent_file)
+            parent = self.added_rows[parent_path]
+
+        row = self.store.append(parent, data)
+        self.added_rows[path] = row
 
     def _row_activated(self) -> None:
         store, iter = self.treeview.get_selection().get_selected()

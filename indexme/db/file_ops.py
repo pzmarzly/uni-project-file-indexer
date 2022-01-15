@@ -47,6 +47,16 @@ class GetAllFiles:
         self.root = os.path.abspath(root)
         self.query = session.query(File).where(File.path.startswith(self.root))
 
+    def with_path_prefix(self, path: Optional[str]) -> "GetAllFiles":
+        if path is not None:
+            self.query = self.query.where(File.path.startswith(path))
+        return self
+
+    def with_path_equal(self, path: Optional[str]) -> "GetAllFiles":
+        if path is not None:
+            self.query = self.query.where(File.path == path)
+        return self
+
     def with_name(self, name: Optional[str]) -> "GetAllFiles":
         if name is not None:
             self.query = self.query.where(File.name.contains(name))
@@ -111,3 +121,8 @@ class GetAllFiles:
 
     def __iter__(self) -> Iterator[File]:
         yield from self.query.all()
+
+
+def get_file(s: Session, path: str) -> Optional[File]:
+    query = GetAllFiles(s, path).with_path_equal(path).limit(1)
+    return next(query.__iter__())
