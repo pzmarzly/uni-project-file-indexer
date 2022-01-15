@@ -19,6 +19,6 @@ else:
 
 
 def connect() -> sessionmaker:
-    engine = create_engine(get_db_string())  # type: ignore
+    engine = create_engine(get_db_string(), isolation_level="AUTOCOMMIT")  # type: ignore
     Base.metadata.create_all(engine)
     return sessionmaker(bind=engine)

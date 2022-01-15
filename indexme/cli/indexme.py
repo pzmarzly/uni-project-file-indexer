@@ -36,6 +36,7 @@ def create_observer(directory: str, exclude: List[str]) -> INotify:
 
 
 def run_observer(observer: INotify, exclude: List[str]) -> None:
+    Session = connect()
     while True:
         for event in observer.read():
             if event.name in exclude:
@@ -64,18 +65,21 @@ def run_observer(observer: INotify, exclude: List[str]) -> None:
                 print(e)
 
 
-def scan_dir(s: Session, directory: str, exclude: List[str]) -> None:
-    for dir_path, subdirs, files in os.walk(directory):
-        # https://stackoverflow.com/a/19859907
-        files[:] = [x for x in files if x not in exclude]
-        subdirs[:] = [x for x in subdirs if x not in exclude]
+def scan_dir(directory: str, exclude: List[str]) -> None:
+    Session = connect()
+    with Session() as s:
+        for dir_path, subdirs, files in os.walk(directory):
+            # https://stackoverflow.com/a/19859907
+            files[:] = [x for x in files if x not in exclude]
+            subdirs[:] = [x for x in subdirs if x not in exclude]
 
-        for file in files:
-            entry = add_file(s, os.path.join(dir_path, file))
-            print(entry)
-        for subdir in subdirs:
-            entry = add_file(s, os.path.join(dir_path, subdir))
-            print(entry)
+            for file in files:
+                entry = add_file(s, os.path.join(dir_path, file))
+                print(entry)
+            for subdir in subdirs:
+                entry = add_file(s, os.path.join(dir_path, subdir))
+                print(entry)
+        s.commit()
 
 
 @app.command()
@@ -89,11 +93,8 @@ def index(
 
     observer = create_observer(directory, exclude) if watch else None
 
-    Session = connect()
     if scan:
-        with Session() as s:
-            scan_dir(s, directory, exclude)
-            s.commit()
+        scan_dir(directory, exclude)
 
     if watch:
         assert observer is not None
