@@ -1,48 +1,24 @@
 from typing import List
 from unittest import TestCase
+
+from click.testing import Result
+
 from indexme.cli.indexme import app as indexme
 from indexme.cli.purgeme import app as purgeme
 from indexme.cli.searchme import app as searchme
-from typer import Typer
-from typer.testing import CliRunner
-from click.testing import Result
-import tempfile
-import os
-
-from indexme.db.connection import connect
-from indexme.db.file_model import File
-from indexme.db.paths import set_db_string_factory
-
-
-def hijack_db() -> None:
-    fd, path = tempfile.mkstemp()
-    os.close(fd)
-    set_db_string_factory(lambda: f"sqlite:///{path}")
-
-
-def get_db_size() -> int:
-    Session = connect()
-    with Session() as s:
-        return s.query(File).count()
-
-
-def _invoke(app: Typer, args: List[str]) -> Result:
-    res = CliRunner().invoke(app, args)
-    if res.exception is not None:
-        raise res.exception
-    return res
+from tests.utils import get_db_size, hijack_db, run_app
 
 
 def index(args: List[str]) -> Result:
-    return _invoke(indexme, args)
+    return run_app(indexme, args)
 
 
 def purge(args: List[str]) -> Result:
-    return _invoke(purgeme, args)
+    return run_app(purgeme, args)
 
 
 def search(args: List[str]) -> Result:
-    return _invoke(searchme, args)
+    return run_app(searchme, args)
 
 
 class CliIndexMeTests(TestCase):
@@ -76,7 +52,7 @@ class CliPurgeMeTests(TestCase):
 
     def test_removes_only_deleted_files(self) -> None:
         self.assertEqual(get_db_size(), 2)
-        res = purge(["tests/example_dir"])
+        purge(["tests/example_dir"])
         self.assertEqual(get_db_size(), 2)
 
 
