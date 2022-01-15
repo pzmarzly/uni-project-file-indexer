@@ -125,4 +125,4 @@ class GetAllFiles:
 
 def get_file(s: Session, path: str) -> Optional[File]:
     query = GetAllFiles(s, path).with_path_equal(path).limit(1)
-    return next(query.__iter__())
+    return next(query.__iter__(), None)
