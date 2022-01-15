@@ -1,6 +1,6 @@
 import subprocess
-from typing import Any, Callable, Optional
-import gi
+from typing import Any, Callable, Dict, List, Optional
+import gi  # type: ignore
 import pathlib
 import typer
 import os
@@ -25,13 +25,13 @@ def load_xml(file: str) -> Gtk.Builder:
 
 
 class MainWindow:
-    def __init__(self):
+    def __init__(self) -> None:
         self.builder = load_xml("main_window.glade")
         self.Session = connect()
 
         self.root = os.path.abspath(str(pathlib.Path.home()))
-        self.added_rows = dict()
-        self.actions = []
+        self.added_rows: Dict[str, Gtk.TreeRow] = dict()
+        self.actions: List[Callable[[str], Any]] = []
 
         self.window = self.builder.get_object("window")
         self.window.connect("destroy", Gtk.main_quit)

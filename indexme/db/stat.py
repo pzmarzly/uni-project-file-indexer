@@ -1,12 +1,16 @@
 import os
 from abc import ABC, abstractmethod
 from datetime import datetime, timezone
-from stat import S_IFDIR, S_ISUID, S_IXUSR  # type: ignore
+
+# Copied from stat.py due to Pylance errors.
+S_IFDIR = 0o040000  # directory
+S_ISUID = 0o4000  # set UID bit
+S_IXUSR = 0o0100  # execute by owner
 
 
 class Stat(ABC):
     @classmethod
-    def get(cls, path: str):
+    def get(cls, path: str) -> "Stat":
         try:
             return ValidStat(os.stat(path))
         except:

@@ -12,7 +12,7 @@ from indexme.db.stat import Stat
 def add_file(s: Session, path: str) -> File:
     path = os.path.abspath(path)
     stat = Stat.get(path)
-    entry = s.query(File).filter(File.path == path).one_or_none() or File()
+    entry = s.query(File).filter(File.path == path).one_or_none() or File()  # type: ignore
     entry.path = path
     entry.name = os.path.split(path)[1]
     entry.is_dir = stat.is_dir()
@@ -45,7 +45,7 @@ class FileSortDirection:
 class GetAllFiles:
     def __init__(self, session: Session, root: str):
         self.root = os.path.abspath(root)
-        self.query = session.query(File).where(File.path.startswith(self.root))
+        self.query = session.query(File).where(File.path.startswith(self.root))  # type: ignore
 
     def with_path_prefix(self, path: Optional[str]) -> "GetAllFiles":
         if path is not None:
