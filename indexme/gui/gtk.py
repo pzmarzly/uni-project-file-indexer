@@ -6,6 +6,7 @@ gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk  # type: ignore
 
 __all__ = ["Gtk"]
+Gtk = Gtk
 
 
 def load_xml(file: str) -> Gtk.Builder:
