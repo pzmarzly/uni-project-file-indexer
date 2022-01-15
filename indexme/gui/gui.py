@@ -28,15 +28,17 @@ class MainWindow:
     def __init__(self):
         self.builder = load_xml("main_window.glade")
         self.Session = connect()
+
         self.root = os.path.abspath(str(pathlib.Path.home()))
         self.added_rows = dict()
+        self.actions = []
 
         self.window = self.builder.get_object("window")
         self.window.connect("destroy", Gtk.main_quit)
 
         self.store = self.builder.get_object("store")
-        self.treeview = self.builder.get_object("treeview")
-        self.treeview.connect(
+        self.tree_view = self.builder.get_object("treeview")
+        self.tree_view.connect(
             "row-activated", lambda _this, _num, _col: self._row_activated()
         )
 
@@ -46,8 +48,8 @@ class MainWindow:
     def show(self) -> None:
         self.window.show()
 
-    def set_action(self, action: Callable[[str], Any]) -> None:
-        self.action = action
+    def add_action(self, action: Callable[[str], Any]) -> None:
+        self.actions.append(action)
 
     def _update_search(self) -> None:
         text = self.search.get_text()
@@ -78,26 +80,38 @@ class MainWindow:
         self.added_rows[path] = row
 
     def _row_activated(self) -> None:
-        store, iter = self.treeview.get_selection().get_selected()
+        store, iter = self.tree_view.get_selection().get_selected()
         if iter is None:
             return
-        path = store[iter][0]
-        if self.action is not None:
-            self.action(path)
+
+        if store.iter_has_child(iter):
+            tree_path = store.get_path(iter)
+            if self.tree_view.row_expanded(tree_path):
+                self.tree_view.collapse_row(tree_path)
+            else:
+                self.tree_view.expand_row(tree_path, False)
+        else:
+            path = store[iter][0]
+            for action in self.actions:
+                action(path)
 
 
 @app.command()
 def gui(
     open: bool = typer.Option(
         True, help="Open file on selection instead of printing filename"
-    )
+    ),
+    exit: bool = typer.Option(False, help="Exit after selecting file"),
 ) -> None:
     window = MainWindow()
 
     if open:
-        window.set_action(lambda path: subprocess.call(["xdg-open", path]))
+        window.add_action(lambda path: subprocess.call(["xdg-open", path]))
     else:
-        window.set_action(lambda path: print(path))
+        window.add_action(lambda path: print(path))
+
+    if exit:
+        window.add_action(lambda _path: Gtk.main_quit())
 
     window.show()
     Gtk.main()

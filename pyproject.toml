@@ -30,7 +30,7 @@ pdoc3 = "^0.10.0"
 indexme = 'indexme.cli.indexme:app'
 purgeme = 'indexme.cli.purgeme:app'
 searchme = 'indexme.cli.searchme:app'
-searchme-gui = 'indexme.gui.gui:gui'
+searchme-gui = 'indexme.gui.gui:app'
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
