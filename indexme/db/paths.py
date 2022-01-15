@@ -19,5 +19,15 @@ def get_ignore_path() -> str:
     return IGNORE_PATH_FACTORY()
 
 
+def set_ignore_path_factory(factory: Callable[[], str]) -> None:
+    global IGNORE_PATH_FACTORY
+    IGNORE_PATH_FACTORY = factory
+
+
 def get_db_string() -> str:
     return DB_STRING_FACTORY()
+
+
+def set_db_string_factory(factory: Callable[[], str]) -> None:
+    global DB_STRING_FACTORY
+    DB_STRING_FACTORY = factory

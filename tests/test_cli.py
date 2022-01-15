@@ -6,9 +6,18 @@ from indexme.cli.searchme import app as searchme
 from typer import Typer
 from typer.testing import CliRunner
 from click.testing import Result
+import tempfile
+import os
 
 from indexme.db.connection import connect
 from indexme.db.file_model import File
+from indexme.db.paths import set_db_string_factory
+
+
+def hijack_db() -> None:
+    fd, path = tempfile.mkstemp()
+    os.close(fd)
+    set_db_string_factory(lambda: f"sqlite:///{path}")
 
 
 def get_db_size() -> int:
@@ -37,6 +46,9 @@ def search(args: List[str]) -> Result:
 
 
 class CliIndexMeTests(TestCase):
+    def setUp(self) -> None:
+        hijack_db()
+
     def test_can_ignore_dir(self) -> None:
         res = index(["tests/example_dir", "--exclude", "inner"])
         self.assertEqual(res.stdout, "")
@@ -52,6 +64,7 @@ class CliIndexMeTests(TestCase):
 
 class CliPurgeMeTests(TestCase):
     def setUp(self) -> None:
+        hijack_db()
         purge(["/", "--all"])
         index(["tests/example_dir"])
 
@@ -69,6 +82,7 @@ class CliPurgeMeTests(TestCase):
 
 class CliSearchMeTests(TestCase):
     def setUp(self) -> None:
+        hijack_db()
         purge(["/", "--all"])
         index(["tests/example_dir"])
 
