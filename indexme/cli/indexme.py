@@ -3,7 +3,6 @@ from typing import Iterator, List
 
 import typer
 from inotifyrecursive import INotify, flags  # type: ignore
-from sqlalchemy.orm.session import Session
 
 from indexme.db.connection import connect
 from indexme.db.file_ops import GetAllFiles, add_file

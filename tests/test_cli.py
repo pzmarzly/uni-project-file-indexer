@@ -6,7 +6,7 @@ from click.testing import Result
 from indexme.cli.indexme import app as indexme
 from indexme.cli.purgeme import app as purgeme
 from indexme.cli.searchme import app as searchme
-from tests.utils import get_db_size, test_env, run_app
+from tests.utils import get_db_size, run_app, test_env
 
 
 def index(args: List[str]) -> Result:

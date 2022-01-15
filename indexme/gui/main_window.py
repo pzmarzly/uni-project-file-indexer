@@ -6,7 +6,7 @@ from sqlalchemy.orm.session import Session
 from indexme.db.connection import connect
 from indexme.db.file_model import File, format_bytes
 from indexme.db.file_ops import FileSortDirection, GetAllFiles, get_file
-from indexme.gui.gtk import load_xml, Gtk
+from indexme.gui.gtk import Gtk, load_xml
 
 
 class MainWindow:

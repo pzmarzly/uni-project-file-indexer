@@ -1,10 +1,11 @@
 import pathlib
+
 import gi  # type: ignore
 
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk  # type: ignore
 
-Gtk = Gtk
+__all__ = ["Gtk"]
 
 
 def load_xml(file: str) -> Gtk.Builder:
