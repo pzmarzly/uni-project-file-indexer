@@ -15,6 +15,8 @@
   <object class="GtkApplicationWindow" id="window">
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">SearchMe (IndexMe)</property>
+    <property name="default_width">800</property>
+    <property name="default_height">600</property>
     <property name="icon_name">edit-find</property>
     <child type="titlebar">
       <placeholder/>
