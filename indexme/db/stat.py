@@ -51,10 +51,10 @@ class InvalidStat(Stat):
         return 0
 
     def ctime(self) -> datetime:
-        return datetime.now()
+        return datetime.fromtimestamp(0)
 
     def mtime(self) -> datetime:
-        return datetime.now()
+        return datetime.fromtimestamp(0)
 
 
 class ValidStat(Stat):
@@ -74,7 +74,7 @@ class ValidStat(Stat):
         return self.stat.st_size
 
     def ctime(self) -> datetime:
-        return datetime.fromtimestamp(self.stat.st_ctime, timezone.utc)
+        return datetime.fromtimestamp(int(self.stat.st_ctime), timezone.utc)
 
     def mtime(self) -> datetime:
-        return datetime.fromtimestamp(self.stat.st_mtime, timezone.utc)
+        return datetime.fromtimestamp(int(self.stat.st_mtime), timezone.utc)

@@ -10,6 +10,14 @@
       <column type="gchararray"/>
       <!-- column-name Size -->
       <column type="gchararray"/>
+      <!-- column-name Created at TS -->
+      <column type="glong"/>
+      <!-- column-name Created at -->
+      <column type="gchararray"/>
+      <!-- column-name Modified at TS -->
+      <column type="glong"/>
+      <!-- column-name Modified at -->
+      <column type="gchararray"/>
     </columns>
   </object>
   <object class="GtkApplicationWindow" id="window">
@@ -62,6 +70,7 @@
                     <property name="resizable">True</property>
                     <property name="sizing">autosize</property>
                     <property name="title" translatable="yes">Name</property>
+                    <property name="expand">True</property>
                     <property name="clickable">True</property>
                     <property name="reorderable">True</property>
                     <property name="sort_indicator">True</property>
@@ -77,6 +86,7 @@
                   <object class="GtkTreeViewColumn">
                     <property name="resizable">True</property>
                     <property name="sizing">autosize</property>
+                    <property name="min_width">80</property>
                     <property name="title" translatable="yes">Size</property>
                     <property name="clickable">True</property>
                     <property name="reorderable">True</property>
@@ -85,6 +95,38 @@
                       <object class="GtkCellRendererText" id="Size_val"/>
                       <attributes>
                         <attribute name="text">2</attribute>
+                      </attributes>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkTreeViewColumn">
+                    <property name="resizable">True</property>
+                    <property name="sizing">autosize</property>
+                    <property name="title" translatable="yes">Created at</property>
+                    <property name="clickable">True</property>
+                    <property name="reorderable">True</property>
+                    <property name="sort_indicator">True</property>
+                    <child>
+                      <object class="GtkCellRendererText" id="Created_at_val"/>
+                      <attributes>
+                        <attribute name="text">4</attribute>
+                      </attributes>
+                    </child>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkTreeViewColumn">
+                    <property name="resizable">True</property>
+                    <property name="sizing">autosize</property>
+                    <property name="title" translatable="yes">Modified at</property>
+                    <property name="clickable">True</property>
+                    <property name="reorderable">True</property>
+                    <property name="sort_indicator">True</property>
+                    <child>
+                      <object class="GtkCellRendererText" id="Modified_at_val"/>
+                      <attributes>
+                        <attribute name="text">6</attribute>
                       </attributes>
                     </child>
                   </object>

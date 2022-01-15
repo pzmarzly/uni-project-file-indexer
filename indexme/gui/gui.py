@@ -63,10 +63,12 @@ class MainWindow:
         self.added_rows.clear()
 
     def _add_row(self, session: Session, path: str, file: Optional[File]) -> None:
-        data = [path, "", ""]
+        data = [path, "", "", 0, "", 0, ""]
         if file is not None:
             size = "dir" if file.is_dir else format_bytes(file.size)
-            data = [file.path, file.name, size]
+            created_at = int(file.created_at.timestamp()), str(file.created_at)
+            modified_at = int(file.modified_at.timestamp()), str(file.modified_at)
+            data = [file.path, file.name, size, *created_at, *modified_at]
 
         parent_path = os.path.dirname(path)
         parent = None
