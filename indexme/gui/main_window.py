@@ -1,27 +1,12 @@
 import os
-import pathlib
-import subprocess
 from typing import Any, Callable, Dict, List, Optional
 
-import gi  # type: ignore
-import typer
 from sqlalchemy.orm.session import Session
 
 from indexme.db.connection import connect
 from indexme.db.file_model import File, format_bytes
 from indexme.db.file_ops import FileSortDirection, GetAllFiles, get_file
-
-gi.require_version("Gtk", "3.0")
-from gi.repository import Gtk  # type: ignore
-
-app = typer.Typer()
-
-
-def load_xml(file: str) -> Gtk.Builder:
-    root = pathlib.Path(__file__).parent
-    builder = Gtk.Builder()
-    builder.add_from_file(str(root / file))
-    return builder
+from indexme.gui.gtk import load_xml, Gtk
 
 
 class MainWindow:
@@ -54,14 +39,15 @@ class MainWindow:
     def _update_search(self) -> None:
         text = self.search.get_text()
         self._clear_rows()
-        with self.Session() as s:
-            for file in (
-                GetAllFiles(s, self.root)
-                .with_name(text)
-                .with_sorting(FileSortDirection("path"))
-                .limit(100)
-            ):
-                self._add_row(s, file.path, file)
+        if len(text) > 0:
+            with self.Session() as s:
+                for file in (
+                    GetAllFiles(s, self.root)
+                    .with_name(text)
+                    .with_sorting(FileSortDirection("path"))
+                    .limit(100)
+                ):
+                    self._add_row(s, file.path, file)
 
     def _clear_rows(self) -> None:
         self.store.clear()
@@ -101,25 +87,3 @@ class MainWindow:
             path = store[iter][0]
             for action in self.actions:
                 action(path)
-
-
-@app.command()
-def gui(
-    root: str = typer.Option("~", help="Where to start searching"),
-    open: bool = typer.Option(
-        True, help="Open file on selection instead of printing filename"
-    ),
-    exit: bool = typer.Option(False, help="Exit after selecting file"),
-) -> None:
-    window = MainWindow(root)
-
-    if open:
-        window.add_action(lambda path: subprocess.call(["xdg-open", path]))
-    else:
-        window.add_action(lambda path: print(path))
-
-    if exit:
-        window.add_action(lambda _path: Gtk.main_quit())
-
-    window.show()
-    Gtk.main()

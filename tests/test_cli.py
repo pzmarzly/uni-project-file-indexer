@@ -6,7 +6,7 @@ from click.testing import Result
 from indexme.cli.indexme import app as indexme
 from indexme.cli.purgeme import app as purgeme
 from indexme.cli.searchme import app as searchme
-from tests.utils import get_db_size, hijack_db, run_app
+from tests.utils import get_db_size, test_env, run_app
 
 
 def index(args: List[str]) -> Result:
@@ -23,7 +23,7 @@ def search(args: List[str]) -> Result:
 
 class CliIndexMeTests(TestCase):
     def setUp(self) -> None:
-        hijack_db()
+        test_env()
 
     def test_can_ignore_dir(self) -> None:
         res = index(["tests/example_dir", "--exclude", "inner"])
@@ -40,7 +40,7 @@ class CliIndexMeTests(TestCase):
 
 class CliPurgeMeTests(TestCase):
     def setUp(self) -> None:
-        hijack_db()
+        test_env()
         purge(["/", "--all"])
         index(["tests/example_dir"])
 
@@ -58,7 +58,7 @@ class CliPurgeMeTests(TestCase):
 
 class CliSearchMeTests(TestCase):
     def setUp(self) -> None:
-        hijack_db()
+        test_env()
         purge(["/", "--all"])
         index(["tests/example_dir"])
 

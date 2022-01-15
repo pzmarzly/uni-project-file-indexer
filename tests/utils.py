@@ -8,13 +8,14 @@ from typer.testing import CliRunner
 
 from indexme.db.connection import connect
 from indexme.db.file_model import File
-from indexme.db.paths import set_db_string_factory
+from indexme.db.paths import set_db_string_factory, set_ignore_path_factory
 
 
-def hijack_db() -> None:
+def test_env() -> None:
     fd, path = tempfile.mkstemp()
     os.close(fd)
     set_db_string_factory(lambda: f"sqlite:///{path}")
+    set_ignore_path_factory(lambda: "/does/not/exist")
 
 
 def get_db_size() -> int:
