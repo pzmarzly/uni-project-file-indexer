@@ -105,5 +105,9 @@ class GetAllFiles:
             self.query = sort_by.apply(self.query)
         return self
 
+    def limit(self, num: int) -> "GetAllFiles":
+        self.query = self.query.limit(num)
+        return self
+
     def __iter__(self) -> Iterator[File]:
         yield from self.query.all()
