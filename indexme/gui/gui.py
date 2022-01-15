@@ -9,7 +9,7 @@ import pathlib
 from sqlalchemy.orm.session import Session
 from indexme.db.connection import connect
 from indexme.db.file_ops import GetAllFiles, get_file
-from indexme.db.file_model import File
+from indexme.db.file_model import File, format_bytes
 
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk  # type: ignore
@@ -63,7 +63,8 @@ class MainWindow:
     def _add_row(self, session: Session, path: str, file: Optional[File]) -> None:
         data = [path, "", ""]
         if file is not None:
-            data = [file.path, file.name, str(file.size)]
+            size = "dir" if file.is_dir else format_bytes(file.size)
+            data = [file.path, file.name, size]
 
         parent_path = os.path.dirname(path)
         parent = None
