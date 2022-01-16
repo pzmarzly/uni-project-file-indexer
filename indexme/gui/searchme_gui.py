@@ -16,6 +16,16 @@ def gui(
     ),
     exit: bool = typer.Option(False, help="Exit after selecting file"),
 ) -> None:
+    """
+    Opens a search window. Requires GTK.
+
+    \b
+    Examples:
+      searchme-gui ~/Desktop
+        Opens a search window in browser mode.
+      searchme-gui ~ --no-open --exit | wl-copy
+        Opens a search window. Upon selecting a file, path is copied to clipboard.
+    """
     window = MainWindow(root)
 
     if open:

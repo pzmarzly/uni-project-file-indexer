@@ -10,6 +10,9 @@ from indexme.db.stat import Stat
 
 
 def add_file(s: Session, path: str) -> File:
+    """
+    Indexes a file or a directory under given path.
+    """
     path = os.path.abspath(path)
     stat = Stat.get(path)
     entry = s.query(File).filter(File.path == path).one_or_none() or File()  # type: ignore
@@ -26,6 +29,10 @@ def add_file(s: Session, path: str) -> File:
 
 
 class FileSortDirection:
+    """
+    Represents a parsed sorting directory.
+    """
+
     def __init__(self, dir: str):
         if dir in ["name"]:
             self.col = File.name
@@ -42,10 +49,17 @@ class FileSortDirection:
         raise Exception(f"Unknown sort direction {dir}")
 
     def apply(self, query: Query) -> Query:
+        """
+        Applies a filter to a query.
+        """
         return cast(Query, query.order_by(self.col))
 
 
 class GetAllFiles:
+    """
+    Builds a search query.
+    """
+
     def __init__(self, session: Session, root: str):
         self.root = os.path.abspath(root)
         self.query = session.query(File).where(File.path.startswith(self.root))  # type: ignore
@@ -127,5 +141,8 @@ class GetAllFiles:
 
 
 def get_file(s: Session, path: str) -> Optional[File]:
+    """
+    Searches for a given exact path in the database.
+    """
     query = GetAllFiles(s, path).with_path_equal(path).limit(1)
     return next(query.__iter__(), None)

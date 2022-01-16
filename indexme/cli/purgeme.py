@@ -13,6 +13,10 @@ def purge(
     root: str = typer.Argument(".", help="Root directory"),
     all: bool = typer.Option(False, help="Purge even if file exists"),
 ) -> None:
+    """
+    Scan a subtree and remove deleted files from database.
+    Optionally remove the whole subtree.
+    """
     Session = connect()
     with Session() as s:
         for file in GetAllFiles(s, root):

@@ -19,6 +19,9 @@ else:
 
 
 def connect() -> sessionmaker:
+    """
+    Connects to a database according to current db_string.
+    """
     engine = create_engine(get_db_string(), isolation_level="AUTOCOMMIT")  # type: ignore
     Base.metadata.create_all(engine)
     return sessionmaker(bind=engine)

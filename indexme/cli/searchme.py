@@ -33,6 +33,20 @@ def search(
     count_only: bool = typer.Option(False, help="Print number of matches"),
     xargs: bool = typer.Option(False, help="Print xargs-readable NUL-sep. list"),
 ) -> None:
+    """
+    Search database for matching files and directories.
+
+    \b
+    Examples:
+      searchme
+        lists all indexed files starting from current directory
+      searchme '' /
+        lists all indexed files
+      searchme invoice ~/Downloads --extension pdf --no-directories
+        finds all PDF invoices in ~/Downloads
+      searchme photo --xargs | xargs -0 echo
+        pass all files with 'photo' in name to xargs
+    """
     direction = FileSortDirection(sort_by)
     if count_only and xargs:
         raise Exception("Conflicting options")

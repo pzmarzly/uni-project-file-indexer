@@ -7,6 +7,10 @@ from indexme.db.connection import Base
 
 
 class File(Base):
+    """
+    An indexed file or directory.
+    """
+
     __tablename__ = "files"
 
     path: Any = Column(String, primary_key=True)
@@ -25,7 +29,13 @@ class File(Base):
 
 
 def format_bytes(size: float) -> str:
-    # https://stackoverflow.com/a/49361727
+    """
+    Formats byte number to human-readable form.
+    Based on https://stackoverflow.com/a/49361727.
+
+    >>> format_bytes(12345.6)
+    '12.06 KB'
+    """
     power = 1024
     n = 0
     labels = {0: "", 1: "K", 2: "M", 3: "G", 4: "T"}

@@ -10,6 +10,10 @@ from indexme.gui.gtk import Gtk, load_xml
 
 
 class MainWindow:
+    """
+    Application's main window.
+    """
+
     def __init__(self, root: str) -> None:
         self.builder = load_xml("main_window.glade")
         self.Session = connect()
@@ -28,15 +32,21 @@ class MainWindow:
         )
 
         self.search = self.builder.get_object("search")
-        self.search.connect("search-changed", lambda _this: self._update_search())
+        self.search.connect("search-changed", lambda _this: self._search_changed())
 
     def show(self) -> None:
+        """
+        Displays the window.
+        """
         self.window.show()
 
     def add_action(self, action: Callable[[str], Any]) -> None:
+        """
+        Attach action to non-expandable row activation.
+        """
         self.actions.append(action)
 
-    def _update_search(self) -> None:
+    def _search_changed(self) -> None:
         text = self.search.get_text()
         self._clear_rows()
         if len(text) > 0:

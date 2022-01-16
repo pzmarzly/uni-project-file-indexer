@@ -9,8 +9,16 @@ S_IXUSR = 0o0100  # execute by owner
 
 
 class Stat(ABC):
+    """
+    Represents a Stat results.
+    Can contain null values (zeros, empty strings etc.).
+    """
+
     @classmethod
     def get(cls, path: str) -> "Stat":
+        """
+        Try stat-ing a given path. Never fails.
+        """
         try:
             return ValidStat(os.stat(path))
         except:
@@ -18,30 +26,47 @@ class Stat(ABC):
 
     @abstractmethod
     def is_dir(self) -> bool:
-        pass
+        """
+        Does this path lead to a directory?
+        """
 
     @abstractmethod
     def is_executable(self) -> bool:
-        pass
+        """
+        Is this a file with owner-executable bit set?
+        """
 
     @abstractmethod
     def is_suid(self) -> bool:
-        pass
+        """
+        Is this a file with SUID bit set?
+        """
 
     @abstractmethod
     def size(self) -> int:
-        pass
+        """
+        How large (in bytes) is this file?
+        """
 
     @abstractmethod
     def ctime(self) -> datetime:
-        pass
+        """
+        Get a creation time.
+        """
 
     @abstractmethod
     def mtime(self) -> datetime:
-        pass
+        """
+        Get a modification time.
+        """
 
 
 class InvalidStat(Stat):
+    """
+    Represents a failed stat results.
+    Returns null values (zeros, empty strings, etc.).
+    """
+
     def is_dir(self) -> bool:
         return False
 
@@ -62,17 +87,22 @@ class InvalidStat(Stat):
 
 
 class ValidStat(Stat):
+    """
+    Represents a successful stat results.
+    Does not do any I/O anymore - uses memoized results instead.
+    """
+
+    def __init__(self, stat: os.stat_result):
+        self.stat = stat
+
     def is_dir(self) -> bool:
         return self.stat.st_mode & S_IFDIR != 0
 
     def is_executable(self) -> bool:
-        return self.stat.st_mode & S_IXUSR != 0
+        return (not self.is_dir()) and self.stat.st_mode & S_IXUSR != 0
 
     def is_suid(self) -> bool:
-        return self.stat.st_mode & S_ISUID != 0
-
-    def __init__(self, stat: os.stat_result):
-        self.stat = stat
+        return (not self.is_dir()) and self.stat.st_mode & S_ISUID != 0
 
     def size(self) -> int:
         return self.stat.st_size

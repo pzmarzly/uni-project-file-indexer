@@ -12,6 +12,10 @@ app = typer.Typer()
 
 
 def get_global_exclusions() -> Iterator[str]:
+    """
+    Tries to load global exclusion list.
+    Returns empty iterator if not found.
+    """
     if os.path.exists(get_ignore_path()):
         with open(get_ignore_path()) as f:
             for line in f.readlines():
@@ -19,6 +23,9 @@ def get_global_exclusions() -> Iterator[str]:
 
 
 def create_observer(directory: str, exclude: List[str]) -> INotify:
+    """
+    Sets up INotify observer.
+    """
     observer = INotify()
     watch_flags = (
         flags.CREATE
@@ -35,6 +42,9 @@ def create_observer(directory: str, exclude: List[str]) -> INotify:
 
 
 def run_observer(observer: INotify, exclude: List[str]) -> None:
+    """
+    Runs a given INotify observer forever.
+    """
     Session = connect()
     while True:
         for event in observer.read():
@@ -65,6 +75,9 @@ def run_observer(observer: INotify, exclude: List[str]) -> None:
 
 
 def scan_dir(directory: str, exclude: List[str]) -> None:
+    """
+    Recursively scans a directory.
+    """
     Session = connect()
     with Session() as s:
         for dir_path, subdirs, files in os.walk(directory):
@@ -88,6 +101,18 @@ def index(
     scan: bool = typer.Option(True, help="Scan the directory first"),
     watch: bool = typer.Option(False, help="Watch for changes"),
 ) -> None:
+    """
+    Recursively index a directory, optionally watching for changes.
+
+    \b
+    Examples:
+      indexme
+        indexes directories starting from current directory
+      indexme /
+        indexes whole filesystem
+      indexme ~ --exclude .git --exclude node_modules --exclude .cache
+        indexes home directory, excluding some directories
+    """
     exclude = [*exclude, *get_global_exclusions()]
 
     observer = create_observer(directory, exclude) if watch else None
