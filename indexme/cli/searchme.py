@@ -69,10 +69,7 @@ def search(
         ):
             counter += 1
             if not count_only:
-                if xargs:
-                    print(os.path.relpath(file.path), end="\0")
-                else:
-                    print(file)
+                print(os.path.relpath(file.path), end=("\0" if xargs else "\n"))
 
     if count_only:
         print(counter)

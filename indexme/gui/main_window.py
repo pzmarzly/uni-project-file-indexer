@@ -21,6 +21,7 @@ class MainWindow:
         self.root = os.path.abspath(os.path.expanduser(root))
         self.added_rows: Dict[str, Gtk.TreeRow] = dict()
         self.actions: List[Callable[[str], Any]] = []
+        self.filters: List[Callable[[GetAllFiles], GetAllFiles]] = []
 
         self.window = self.builder.get_object("window")
         self.window.connect("destroy", Gtk.main_quit)
@@ -42,21 +43,25 @@ class MainWindow:
 
     def add_action(self, action: Callable[[str], Any]) -> None:
         """
-        Attach action to non-expandable row activation.
+        Attach an action to non-expandable row activation.
         """
         self.actions.append(action)
+
+    def add_filter(self, filter: Callable[[GetAllFiles], GetAllFiles]) -> None:
+        """
+        Attach a filter to search query.
+        """
+        self.filters.append(filter)
 
     def _search_changed(self) -> None:
         text = self.search.get_text()
         self._clear_rows()
         if len(text) > 0:
             with self.Session() as s:
-                for file in (
-                    GetAllFiles(s, self.root)
-                    .with_name(text)
-                    .with_sorting(FileSortDirection("path"))
-                    .limit(100)
-                ):
+                query = GetAllFiles(s, self.root).with_name(text)
+                for f in self.filters:
+                    query = f(query)
+                for file in query.with_sorting(FileSortDirection("path")).limit(100):
                     self._add_row(s, file.path, file)
 
     def _clear_rows(self) -> None:
