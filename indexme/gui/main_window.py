@@ -1,14 +1,14 @@
 import os
 from typing import Any, Callable, Dict, List, Optional
 
-from send2trash import send2trash
+from send2trash import send2trash  # type: ignore
 from sqlalchemy.orm.session import Session
 
 from indexme.db.connection import connect
 from indexme.db.file_model import File, format_bytes
 from indexme.db.file_ops import FileSortDirection, GetAllFiles, get_file
-from indexme.gui.gtk import Gdk, Gtk, load_glade
 from indexme.gui.clipboard import copy_file_to_clipboard, copy_path_to_clipboard
+from indexme.gui.gtk import Gdk, Gtk, load_glade
 
 
 class MainWindow:
