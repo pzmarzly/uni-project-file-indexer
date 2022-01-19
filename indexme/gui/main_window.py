@@ -1,12 +1,14 @@
 import os
 from typing import Any, Callable, Dict, List, Optional
 
+from send2trash import send2trash
 from sqlalchemy.orm.session import Session
 
 from indexme.db.connection import connect
 from indexme.db.file_model import File, format_bytes
 from indexme.db.file_ops import FileSortDirection, GetAllFiles, get_file
-from indexme.gui.gtk import Gtk, load_xml
+from indexme.gui.gtk import Gdk, Gtk, load_glade
+from indexme.gui.clipboard import copy_file_to_clipboard, copy_path_to_clipboard
 
 
 class MainWindow:
@@ -15,7 +17,7 @@ class MainWindow:
     """
 
     def __init__(self, root: str) -> None:
-        self.builder = load_xml("main_window.glade")
+        self.builder = load_glade("main_window.glade")
         self.Session = connect()
 
         self.root = os.path.abspath(os.path.expanduser(root))
@@ -30,6 +32,9 @@ class MainWindow:
         self.tree_view = self.builder.get_object("treeview")
         self.tree_view.connect(
             "row-activated", lambda _this, _num, _col: self._row_activated()
+        )
+        self.tree_view.connect(
+            "button-press-event", lambda _this, ev: self._row_clicked(ev)
         )
 
         self.search = self.builder.get_object("search")
@@ -102,3 +107,36 @@ class MainWindow:
             path = store[iter][0]
             for action in self.actions:
                 action(path)
+
+    def _row_clicked(self, ev: Gdk.EventButton) -> None:
+        LEFT, MIDDLE, RIGHT = 1, 2, 3
+        if ev.button == RIGHT:
+            menu = Gtk.Menu()
+
+            refresh = Gtk.MenuItem("Refresh")
+            refresh.connect("activate", lambda _this: self._search_changed())
+            menu.append(refresh)
+
+            loc = self.tree_view.get_path_at_pos(int(ev.x), int(ev.y))
+            if loc is not None:
+                tree_path, _col, _rel_x, _rel_y = loc
+                row = self.store[tree_path]
+
+                copy_path = Gtk.MenuItem("Copy path")
+                copy_path.connect(
+                    "activate", lambda _this: copy_path_to_clipboard(row[0])
+                )
+                menu.append(copy_path)
+
+                copy_file = Gtk.MenuItem("Copy file")
+                copy_file.connect(
+                    "activate", lambda _this: copy_file_to_clipboard(row[0])
+                )
+                menu.append(copy_file)
+
+                trash = Gtk.MenuItem("Move to trash")
+                trash.connect("activate", lambda _this: send2trash(row[0]))
+                menu.append(trash)
+
+            menu.show_all()
+            menu.popup(None, None, None, None, RIGHT, ev.get_time())
