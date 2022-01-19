@@ -30,7 +30,7 @@ def gui(
     Examples:
       searchme-gui ~/Desktop
         Opens a search window in browser mode.
-      searchme-gui ~ --print --exit | tr -d '\n' | xclip -selection clipboard
+      searchme-gui ~ --print --exit | tr -d '\\n' | xclip -selection clipboard
         Opens a search window. Upon selecting a file, path is copied to clipboard and program quits.
       searchme-gui --extension png --print --xargs | xargs -0 -L 1 xclip -selection clipboard -t image/png -i
         Interactively copies images to clipboard.
