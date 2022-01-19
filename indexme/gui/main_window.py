@@ -113,14 +113,24 @@ class MainWindow:
         if ev.button == RIGHT:
             menu = Gtk.Menu()
 
-            refresh = Gtk.MenuItem("Refresh")
-            refresh.connect("activate", lambda _this: self._search_changed())
-            menu.append(refresh)
-
             loc = self.tree_view.get_path_at_pos(int(ev.x), int(ev.y))
             if loc is not None:
                 tree_path, _col, _rel_x, _rel_y = loc
                 row = self.store[tree_path]
+
+                expand_all = Gtk.MenuItem("Expand all")
+                expand_all.connect(
+                    "activate", lambda _this: self.tree_view.expand_row(tree_path, True)
+                )
+                menu.append(expand_all)
+
+                collapse_all = Gtk.MenuItem("Collapse all")
+                collapse_all.connect(
+                    "activate", lambda _this: self.tree_view.collapse_row(tree_path)
+                )
+                menu.append(collapse_all)
+
+                menu.append(Gtk.SeparatorMenuItem())
 
                 copy_path = Gtk.MenuItem("Copy path")
                 copy_path.connect(
@@ -134,9 +144,17 @@ class MainWindow:
                 )
                 menu.append(copy_file)
 
+                menu.append(Gtk.SeparatorMenuItem())
+
                 trash = Gtk.MenuItem("Move to trash")
                 trash.connect("activate", lambda _this: send2trash(row[0]))
                 menu.append(trash)
+
+                menu.append(Gtk.SeparatorMenuItem())
+
+            refresh = Gtk.MenuItem("Refresh")
+            refresh.connect("activate", lambda _this: self._search_changed())
+            menu.append(refresh)
 
             menu.show_all()
             menu.popup(None, None, None, None, RIGHT, ev.get_time())
