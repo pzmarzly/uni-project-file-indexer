@@ -72,18 +72,18 @@ class CliSearchMeTests(TestCase):
 
     def test_lists_all_dirs_and_files(self) -> None:
         res = search(["", "tests/example_dir"])
-        self.assertIn("inner", res.stdout)
-        self.assertIn("example_file.txt", res.stdout)
+        self.assertIn("inner\n", res.stdout)
+        self.assertIn("example_file.txt\n", res.stdout)
 
     def test_lists_all_dirs(self) -> None:
         res = search(["", "--directories", "tests/example_dir"])
-        self.assertIn("inner:", res.stdout)
-        self.assertNotIn("example_file.txt:", res.stdout)
+        self.assertIn("inner\n", res.stdout)
+        self.assertNotIn("example_file.txt\n", res.stdout)
 
     def test_lists_all_files(self) -> None:
         res = search(["", "--no-directories", "tests/example_dir"])
-        self.assertNotIn("inner:", res.stdout)
-        self.assertIn("example_file.txt:", res.stdout)
+        self.assertNotIn("inner\n", res.stdout)
+        self.assertIn("example_file.txt\n", res.stdout)
 
     def test_counts_files_and_dirs(self) -> None:
         res = search(["", "--count-only", "tests/example_dir"])
